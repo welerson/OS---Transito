@@ -32,4 +32,4 @@ export interface OperationPlan {
   vehicles: Vehicle[];
 }
 
-export type ViewState = 'DASHBOARD' | 'CREATE' | 'DETAILS' | 'OFFICIAL_DOC';
+export type ViewState = 'DASHBOARD' | 'CREATE' | 'DETAILS' | 'OFFICIAL_DOC' | 'SUMMARY_REPORT';

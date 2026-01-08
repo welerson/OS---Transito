@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import OperationForm from './components/OperationForm';
 import OperationDetails from './components/OperationDetails';
 import OfficialDocument from './components/OfficialDocument';
+import SummaryReport from './components/SummaryReport';
 
 const INITIAL_DATA: OperationPlan[] = [
   {
@@ -28,32 +29,12 @@ const INITIAL_DATA: OperationPlan[] = [
     vehicles: Array.from({ length: 15 }, (_, i) => ({ id: `VT-${i + 1}`, name: `VT-${i + 1}`, arrived: false }))
   },
   {
-    id: '2',
-    name: 'Show da Banda Skank - Turnê Final',
-    inspectorate: 'Inspetoria Regional Centro-Sul',
-    macroRegion: 'Macro 1',
-    location: 'Esplanada do Mineirão, Belo Horizonte',
-    date: '2024-08-15',
-    startTime: '20:00',
-    objective: 'Garantir a segurança dos participantes do evento.',
-    scenario: 'Local aberto com capacidade para 50 mil pessoas.',
-    uniform: 'Uniforme Operacional',
-    radio: 'Rede Operacional (153)',
-    equipment: 'HT, Colete Balístico',
-    meetingPoint: 'Esplanada Principal',
-    agentsCount: 120,
-    vehiclesCount: 10,
-    status: OperationStatus.PLANNED,
-    responsible: 'Subinspetor Lima',
-    vehicles: Array.from({ length: 10 }, (_, i) => ({ id: `VT-${i + 1}`, name: `VT-${i + 1}`, arrived: false }))
-  },
-  {
     id: '3',
     name: 'Feira de Artesanato da Afonso Pena',
     inspectorate: 'Inspetoria Regional Leste',
     macroRegion: 'Macro 2',
     location: 'Avenida Afonso Pena, Belo Horizonte',
-    date: 'Todo Domingo',
+    date: '2025-05-10',
     startTime: '08:00',
     objective: 'Assegurar a incolumidade das pessoas e do patrimônio público.',
     scenario: 'Evento tradicional com grande circulação de turistas.',
@@ -128,6 +109,7 @@ const App: React.FC = () => {
           onNew={() => setView('CREATE')} 
           onSelect={(id) => { setSelectedId(id); setView('DETAILS'); }}
           onExport={exportBackup}
+          onShowSummary={() => setView('SUMMARY_REPORT')}
         />
       )}
 
@@ -152,6 +134,13 @@ const App: React.FC = () => {
         <OfficialDocument 
           plan={selectedPlan} 
           onBack={() => setView('DETAILS')} 
+        />
+      )}
+
+      {view === 'SUMMARY_REPORT' && (
+        <SummaryReport 
+          plans={plans} 
+          onBack={() => setView('DASHBOARD')} 
         />
       )}
     </div>
