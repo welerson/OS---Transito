@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { OperationPlan, OperationStatus } from '../types';
-import { Plus, Database, MapPin, Calendar, Users, Car, FileText, Image as ImageIcon } from 'lucide-react';
+import { Plus, Database, MapPin, Calendar, Users, Car, FileText, Image as ImageIcon, CloudUpload, CloudDownload } from 'lucide-react';
 
 interface DashboardProps {
   plans: OperationPlan[];
@@ -9,9 +9,11 @@ interface DashboardProps {
   onSelect: (id: string) => void;
   onExport: () => void;
   onShowSummary: () => void;
+  isSyncing: boolean;
+  onCloudLoad: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport, onShowSummary }) => {
+const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport, onShowSummary, isSyncing, onCloudLoad }) => {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -60,29 +62,45 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
 
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">GCMBH - Plano de Emprego Operacional</h1>
-          <p className="text-slate-400 mt-1">Gestão tática e acompanhamento de missões</p>
+          <h1 className="text-3xl font-bold tracking-tight">GCMBH - P.E.O.</h1>
+          <p className="text-slate-400 mt-1">Gestão de Missões GCMBH</p>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
           <button 
             onClick={onShowSummary}
-            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all border border-slate-700"
+            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all border border-slate-700"
           >
-            <FileText size={18} />
-            Relatório Resumo
+            <FileText size={16} />
+            Relatório
           </button>
+          
+          <div className="h-8 w-px bg-slate-800 mx-1 hidden md:block"></div>
+
           <button 
-            onClick={onExport}
-            className="flex items-center gap-2 text-slate-400 hover:text-white text-sm transition-colors"
+            disabled={isSyncing}
+            onClick={onCloudLoad}
+            className="flex items-center gap-2 text-slate-400 hover:text-white text-xs transition-colors bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg"
           >
-            <Database size={16} />
-            Backup JSON
+            <CloudDownload size={14} />
+            Baixar da Nuvem
           </button>
+
+          <button 
+            disabled={isSyncing}
+            onClick={onExport}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all border
+              ${isSyncing ? 'bg-slate-800 text-slate-500 border-slate-700' : 'bg-orange-600/10 hover:bg-orange-600/20 text-orange-500 border-orange-500/50 shadow-lg shadow-orange-900/10'}
+            `}
+          >
+            <CloudUpload size={16} className={isSyncing ? 'animate-bounce' : ''} />
+            {isSyncing ? 'Enviando...' : 'Sincronizar Nuvem'}
+          </button>
+
           <button 
             onClick={onNew}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-semibold transition-all shadow-lg shadow-blue-500/20"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 text-xs font-bold transition-all shadow-lg shadow-blue-500/20"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             Novo Plano
           </button>
         </div>
@@ -90,7 +108,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
 
       <section>
         <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-          Eventos Agendados
+          Missões Agendadas
           {plans.some(isLate) && (
             <span className="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded font-black uppercase animate-pulse">Atenção: Atrasados</span>
           )}
@@ -102,14 +120,12 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
               onClick={() => onSelect(plan.id)}
               className={`group cursor-pointer rounded-xl p-5 border transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden flex flex-col justify-between h-[280px] ${getStatusStyles(plan)}`}
             >
-              {/* Background Photo Sutil se existir */}
               {plan.photo && (
                 <div className="absolute top-0 right-0 w-24 h-24 opacity-20 pointer-events-none">
                   <img src={plan.photo} alt="" className="w-full h-full object-cover rounded-bl-3xl" />
                 </div>
               )}
 
-              {/* Card Header */}
               <div>
                 <div className="flex justify-between items-start gap-2 mb-3">
                   <div className="flex-1">
@@ -128,7 +144,6 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                   </span>
                 </div>
 
-                {/* Info Details */}
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-slate-300 text-xs">
                     <MapPin size={14} className={`${isLate(plan) ? 'text-yellow-500' : 'text-blue-500'} shrink-0`} />
@@ -141,7 +156,6 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                 </div>
               </div>
 
-              {/* Stats Footer */}
               <div className="flex gap-6 pt-4 border-t border-slate-700/30 mt-auto">
                 <div className="flex flex-col">
                   <span className="text-xl font-black text-white">{plan.agentsCount}</span>
@@ -162,7 +176,6 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                 )}
               </div>
 
-              {/* Special Status Indicator */}
               {isLate(plan) && (
                 <div className="absolute top-1 right-1">
                    <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping"></div>

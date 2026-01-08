@@ -1,54 +1,50 @@
 
 import React, { useState, useEffect } from 'react';
-import { OperationPlan, ViewState, OperationStatus, Vehicle } from './types';
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set, get } from "firebase/database";
+import { OperationPlan, ViewState, OperationStatus } from './types';
 import Dashboard from './components/Dashboard';
 import OperationForm from './components/OperationForm';
 import OperationDetails from './components/OperationDetails';
 import OfficialDocument from './components/OfficialDocument';
 import SummaryReport from './components/SummaryReport';
 
+// Configuração fornecida pelo usuário
+const firebaseConfig = {
+  apiKey: "AIzaSyC1HxDakANcWO8_D50osS29SwxG0kVsmoY",
+  authDomain: "os-transito.firebaseapp.com",
+  projectId: "os-transito",
+  storageBucket: "os-transito.firebasestorage.app",
+  messagingSenderId: "620327303820",
+  appId: "1:620327303820:web:554653b622cbdfc56299a9",
+  measurementId: "G-1EWNEF9Q1S"
+};
+
+// Inicializa Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 const INITIAL_DATA: OperationPlan[] = [
   {
     id: '1',
-    name: 'Final do Campeonato Mineiro',
-    inspectorate: 'Inspetoria de Operações Especiais (IOPE)',
-    macroRegion: 'Macro 3',
-    location: 'Estádio Mineirão, Belo Horizonte',
-    date: '2024-07-28',
-    startTime: '16:00',
-    objective: 'Assegurar a ordem pública no entorno do estádio.',
-    scenario: 'Grande fluxo de torcedores e trânsito intenso.',
-    uniform: 'Uniforme Operacional',
-    radio: 'Rede Operacional (153)',
-    equipment: 'HT, Colete Balístico, Espargidor',
-    meetingPoint: 'Entrada Sul do Mineirão',
-    agentsCount: 150,
-    vehiclesCount: 15,
-    deployedTeam: 'GCM Silva, GCM Santos, GCM Oliveira, GCM Souza...',
+    name: 'Exemplo de Operação',
+    inspectorate: 'Inspetoria Exemplo',
+    macroRegion: 'Macro 1',
+    location: 'Belo Horizonte, MG',
+    date: '2024-12-31',
+    startTime: '10:00',
+    objective: 'Demonstração do sistema.',
+    scenario: 'Normal.',
+    uniform: 'Operacional',
+    radio: 'Rede 1',
+    equipment: 'HT',
+    meetingPoint: 'Base',
+    agentsCount: 5,
+    vehiclesCount: 2,
+    deployedTeam: 'Agentes Exemplo',
     status: OperationStatus.PLANNED,
-    responsible: 'Inspetor Chefe Silva',
-    vehicles: Array.from({ length: 15 }, (_, i) => ({ id: `VT-${i + 1}`, name: `VT-${i + 1}`, arrived: false }))
-  },
-  {
-    id: '3',
-    name: 'Feira de Artesanato da Afonso Pena',
-    inspectorate: 'Inspetoria Regional Leste',
-    macroRegion: 'Macro 2',
-    location: 'Avenida Afonso Pena, Belo Horizonte',
-    date: '2025-05-10',
-    startTime: '08:00',
-    objective: 'Assegurar a incolumidade das pessoas e do patrimônio público.',
-    scenario: 'Evento tradicional com grande circulação de turistas.',
-    uniform: 'Uniforme Operacional',
-    radio: 'Rede Principal',
-    equipment: 'Padrão GCMBH',
-    meetingPoint: 'Avenida Afonso Pena',
-    agentsCount: 80,
-    vehiclesCount: 8,
-    deployedTeam: 'GCM Lima, GCM Costa, GCM Pereira...',
-    status: OperationStatus.IN_PROGRESS,
-    responsible: 'Subinspetor Lima',
-    vehicles: Array.from({ length: 8 }, (_, i) => ({ id: `VT-${i + 1}`, name: `VT-${i + 1}`, arrived: i < 3 }))
+    responsible: 'Inspetor Exemplo',
+    vehicles: [{ id: 'VT-1', name: 'VT-1', arrived: false }, { id: 'VT-2', name: 'VT-2', arrived: false }]
   }
 ];
 
@@ -59,12 +55,47 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : INITIAL_DATA;
   });
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('gcmbh_plans', JSON.stringify(plans));
   }, [plans]);
 
   const selectedPlan = plans.find(p => p.id === selectedId);
+
+  // Função para enviar ao Banco de Dados (Firebase)
+  const syncWithFirebase = async () => {
+    setIsSyncing(true);
+    try {
+      await set(ref(db, 'plans'), plans);
+      alert('Dados sincronizados com sucesso na Nuvem Firebase!');
+    } catch (error) {
+      console.error("Erro ao sincronizar:", error);
+      alert('Falha ao enviar para o banco de dados. Verifique as regras do Firebase.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Função para carregar do Banco de Dados
+  const loadFromFirebase = async () => {
+    setIsSyncing(true);
+    try {
+      const snapshot = await get(ref(db, 'plans'));
+      if (snapshot.exists()) {
+        const cloudData = snapshot.val();
+        setPlans(cloudData);
+        alert('Dados baixados da Nuvem com sucesso!');
+      } else {
+        alert('Nenhum dado encontrado na nuvem.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao carregar dados da nuvem.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const handleCreatePlan = (newPlan: Omit<OperationPlan, 'id' | 'status' | 'vehicles'>) => {
     const plan: OperationPlan = {
@@ -97,16 +128,6 @@ const App: React.FC = () => {
     }));
   };
 
-  const exportBackup = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(plans));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "gcmbh_backup.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-  };
-
   return (
     <div className="min-h-screen">
       {view === 'DASHBOARD' && (
@@ -114,8 +135,10 @@ const App: React.FC = () => {
           plans={plans} 
           onNew={() => setView('CREATE')} 
           onSelect={(id) => { setSelectedId(id); setView('DETAILS'); }}
-          onExport={exportBackup}
+          onExport={syncWithFirebase} // Alterado para disparar o Sync
           onShowSummary={() => setView('SUMMARY_REPORT')}
+          isSyncing={isSyncing}
+          onCloudLoad={loadFromFirebase}
         />
       )}
 
