@@ -108,6 +108,12 @@ const App: React.FC = () => {
     setView('DASHBOARD');
   };
 
+  const handleDeletePlan = (id: string) => {
+    if (window.confirm('Deseja realmente excluir esta missão concluída? Esta ação não pode ser desfeita localmente.')) {
+      setPlans(prev => prev.filter(p => p.id !== id));
+    }
+  };
+
   const handleUpdatePlan = (updatedPlan: OperationPlan) => {
     setPlans(prev => prev.map(p => p.id === updatedPlan.id ? updatedPlan : p));
   };
@@ -135,10 +141,11 @@ const App: React.FC = () => {
           plans={plans} 
           onNew={() => setView('CREATE')} 
           onSelect={(id) => { setSelectedId(id); setView('DETAILS'); }}
-          onExport={syncWithFirebase} // Alterado para disparar o Sync
+          onExport={syncWithFirebase} 
           onShowSummary={() => setView('SUMMARY_REPORT')}
           isSyncing={isSyncing}
           onCloudLoad={loadFromFirebase}
+          onDelete={handleDeletePlan}
         />
       )}
 

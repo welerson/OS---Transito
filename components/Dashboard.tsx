@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { OperationPlan, OperationStatus } from '../types';
-import { Plus, Database, MapPin, Calendar, Users, Car, FileText, Image as ImageIcon, CloudUpload, CloudDownload } from 'lucide-react';
+import { Plus, Database, MapPin, Calendar, Users, Car, FileText, Image as ImageIcon, CloudUpload, CloudDownload, Trash2 } from 'lucide-react';
 
 interface DashboardProps {
   plans: OperationPlan[];
@@ -11,9 +11,10 @@ interface DashboardProps {
   onShowSummary: () => void;
   isSyncing: boolean;
   onCloudLoad: () => void;
+  onDelete: (id: string) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport, onShowSummary, isSyncing, onCloudLoad }) => {
+const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport, onShowSummary, isSyncing, onCloudLoad, onDelete }) => {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -124,6 +125,20 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                 <div className="absolute top-0 right-0 w-24 h-24 opacity-20 pointer-events-none">
                   <img src={plan.photo} alt="" className="w-full h-full object-cover rounded-bl-3xl" />
                 </div>
+              )}
+
+              {/* Botão de Excluir para Concluídos */}
+              {plan.status === OperationStatus.COMPLETED && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(plan.id);
+                  }}
+                  className="absolute top-3 right-3 p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Excluir Missão Concluída"
+                >
+                  <Trash2 size={16} />
+                </button>
               )}
 
               <div>
