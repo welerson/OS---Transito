@@ -35,7 +35,12 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Convertendo strings numéricas para Number antes do envio
+    onSubmit({
+      ...formData,
+      agentsCount: Number(formData.agentsCount),
+      vehiclesCount: Number(formData.vehiclesCount)
+    });
   };
 
   return (

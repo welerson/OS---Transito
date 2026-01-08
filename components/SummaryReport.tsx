@@ -14,8 +14,9 @@ const SummaryReport: React.FC<SummaryReportProps> = ({ plans, onBack }) => {
     planned: plans.filter(p => p.status === OperationStatus.PLANNED).length,
     inProgress: plans.filter(p => p.status === OperationStatus.IN_PROGRESS).length,
     completed: plans.filter(p => p.status === OperationStatus.COMPLETED).length,
-    totalAgents: plans.reduce((acc, p) => acc + p.agentsCount, 0),
-    totalVehicles: plans.reduce((acc, p) => acc + p.vehiclesCount, 0)
+    // Garantindo conversão para número para evitar concatenação de strings
+    totalAgents: plans.reduce((acc, p) => acc + Number(p.agentsCount || 0), 0),
+    totalVehicles: plans.reduce((acc, p) => acc + Number(p.vehiclesCount || 0), 0)
   };
 
   const handlePrint = () => window.print();
