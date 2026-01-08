@@ -27,7 +27,6 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
       return 'bg-emerald-950/20 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]';
     }
     if (plan.status === OperationStatus.COMPLETED) {
-      // Removido o 'grayscale' para permitir que o botão de excluir seja vermelho
       return 'bg-slate-900/80 border-slate-700/50 opacity-90';
     }
     
@@ -65,7 +64,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">GCMBH - P.E.O.</h1>
-          <p className="text-slate-400 mt-1">Gestão de Missões GCMBH</p>
+          <p className="text-slate-400 mt-1 uppercase text-sm tracking-wide font-medium">Departamento de Transito</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button 
