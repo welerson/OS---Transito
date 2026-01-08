@@ -24,6 +24,7 @@ const INITIAL_DATA: OperationPlan[] = [
     meetingPoint: 'Entrada Sul do Mineirão',
     agentsCount: 150,
     vehiclesCount: 15,
+    deployedTeam: 'GCM Silva, GCM Santos, GCM Oliveira, GCM Souza...',
     status: OperationStatus.PLANNED,
     responsible: 'Inspetor Chefe Silva',
     vehicles: Array.from({ length: 15 }, (_, i) => ({ id: `VT-${i + 1}`, name: `VT-${i + 1}`, arrived: false }))
@@ -44,6 +45,7 @@ const INITIAL_DATA: OperationPlan[] = [
     meetingPoint: 'Avenida Afonso Pena',
     agentsCount: 80,
     vehiclesCount: 8,
+    deployedTeam: 'GCM Lima, GCM Costa, GCM Pereira...',
     status: OperationStatus.IN_PROGRESS,
     responsible: 'Subinspetor Lima',
     vehicles: Array.from({ length: 8 }, (_, i) => ({ id: `VT-${i + 1}`, name: `VT-${i + 1}`, arrived: i < 3 }))

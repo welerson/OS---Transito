@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { OperationPlan, OperationStatus } from '../types';
-import { Shield, ChevronLeft, Info, MapPin, Calendar, Clock, Target, List, Users, Car } from 'lucide-react';
+import { Shield, ChevronLeft, MapPin, Calendar, Clock, Users, Car, UserCheck } from 'lucide-react';
 
 interface OperationFormProps {
   onSubmit: (plan: Omit<OperationPlan, 'id' | 'status' | 'vehicles'>) => void;
@@ -22,6 +22,7 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
     meetingPoint: '',
     agentsCount: 10,
     vehiclesCount: 2,
+    deployedTeam: '',
     responsible: '',
     inspectorate: '',
     macroRegion: 'Macro 1'
@@ -174,33 +175,47 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
             </div>
           </div>
 
-          <div className="md:col-span-2 p-6 bg-slate-800/20 flex flex-col justify-center items-center">
-            <h3 className="text-md font-bold text-slate-400 mb-6">Efetivo Alocado</h3>
-            <div className="flex gap-4">
-              <div className="bg-slate-900/60 p-5 rounded-lg border border-slate-800 flex flex-col items-center min-w-[120px]">
+          <div className="md:col-span-2 p-6 bg-slate-800/20 flex flex-col justify-center">
+            <h3 className="text-md font-bold text-slate-400 mb-4 text-center">Efetivo Alocado</h3>
+            <div className="flex gap-4 mb-4 justify-center">
+              <div className="bg-slate-900/60 p-4 rounded-lg border border-slate-800 flex flex-col items-center min-w-[100px]">
                 <input 
                   type="number" 
                   name="agentsCount" 
                   value={formData.agentsCount} 
                   onChange={handleChange}
-                  className="bg-transparent text-3xl font-bold text-white text-center w-full outline-none"
+                  className="bg-transparent text-2xl font-bold text-white text-center w-full outline-none"
                 />
-                <span className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wider flex items-center gap-1">
+                <span className="text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-wider flex items-center gap-1">
                   <Users size={12} /> Agentes
                 </span>
               </div>
-              <div className="bg-slate-900/60 p-5 rounded-lg border border-slate-800 flex flex-col items-center min-w-[120px]">
+              <div className="bg-slate-900/60 p-4 rounded-lg border border-slate-800 flex flex-col items-center min-w-[100px]">
                 <input 
                   type="number" 
                   name="vehiclesCount" 
                   value={formData.vehiclesCount} 
                   onChange={handleChange}
-                  className="bg-transparent text-3xl font-bold text-white text-center w-full outline-none"
+                  className="bg-transparent text-2xl font-bold text-white text-center w-full outline-none"
                 />
-                <span className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-wider flex items-center gap-1">
+                <span className="text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-wider flex items-center gap-1">
                   <Car size={12} /> Viaturas
                 </span>
               </div>
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                <UserCheck size={12} /> Equipe Empenhada (Nomes)
+              </label>
+              <textarea 
+                name="deployedTeam" 
+                value={formData.deployedTeam} 
+                onChange={handleChange} 
+                placeholder="Liste os agentes empenhados..."
+                rows={3}
+                className="w-full bg-slate-800/40 border border-slate-700 rounded p-2 text-xs outline-none focus:border-blue-500 transition-colors resize-none"
+              />
             </div>
           </div>
         </div>

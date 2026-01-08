@@ -36,7 +36,7 @@ const OfficialDocument: React.FC<OfficialDocumentProps> = ({ plan, onBack }) => 
       </div>
 
       {/* Document Content */}
-      <div className="max-w-[21cm] mx-auto bg-white text-black p-[2cm] shadow-2xl min-h-[29.7cm] print:shadow-none print:p-[1cm]">
+      <div className="max-w-[21cm] mx-auto bg-white text-black p-[2cm] shadow-2xl min-h-[29.7cm] print:shadow-none print:p-[1cm] flex flex-col">
         <header className="text-center mb-8">
           <h1 className="text-lg font-bold leading-tight uppercase">Prefeitura Municipal de Belo Horizonte</h1>
           <h2 className="text-md font-bold leading-tight uppercase">Secretaria Municipal de Segurança e Prevenção</h2>
@@ -45,8 +45,8 @@ const OfficialDocument: React.FC<OfficialDocumentProps> = ({ plan, onBack }) => 
           <p className="font-bold text-sm">PLANO DE EMPREGO OPERACIONAL Nº {plan.date.split('-')[0]}/{plan.id.slice(-2)}</p>
         </header>
 
-        <section className="mb-8">
-          <h4 className="font-bold border-b border-black mb-4 py-1 text-sm uppercase">I - IDENTIFICAÇÃO DA OPERAÇÃO</h4>
+        <section className="mb-6">
+          <h4 className="font-bold border-b border-black mb-3 py-1 text-sm uppercase">I - IDENTIFICAÇÃO DA OPERAÇÃO</h4>
           <div className="grid grid-cols-2 gap-y-2 text-[12px]">
             <div><span className="font-bold">Evento/Operação:</span> {plan.name}</div>
             <div><span className="font-bold">Macro Região:</span> {plan.macroRegion}</div>
@@ -57,16 +57,16 @@ const OfficialDocument: React.FC<OfficialDocumentProps> = ({ plan, onBack }) => 
           </div>
         </section>
 
-        <section className="mb-8">
-          <h4 className="font-bold border-b border-black mb-4 py-1 text-sm uppercase">II - MISSÃO E OBJETIVO</h4>
+        <section className="mb-6">
+          <h4 className="font-bold border-b border-black mb-3 py-1 text-sm uppercase">II - MISSÃO E OBJETIVO</h4>
           <p className="text-[12px] leading-relaxed text-justify">
             {plan.objective || "Assegurar a incolumidade das pessoas e do patrimônio público durante a realização do evento supracitado, garantindo o livre exercício das liberdades individuais através do policiamento preventivo e comunitário."}
           </p>
         </section>
 
-        <section className="mb-8">
-          <h4 className="font-bold border-b border-black mb-4 py-1 text-sm uppercase">III - RECURSOS EMPREGADOS</h4>
-          <div className="grid grid-cols-2 gap-4 border border-slate-200 p-4 rounded text-[12px]">
+        <section className="mb-6">
+          <h4 className="font-bold border-b border-black mb-3 py-1 text-sm uppercase">III - RECURSOS EMPREGADOS</h4>
+          <div className="grid grid-cols-2 gap-4 border border-slate-200 p-3 rounded text-[12px]">
             <div>
               <div className="mb-1"><span className="font-bold">Efetivo Total:</span> {plan.agentsCount} Agentes</div>
               <div><span className="font-bold">Viaturas:</span> {plan.vehiclesCount} Unidades</div>
@@ -78,11 +78,18 @@ const OfficialDocument: React.FC<OfficialDocumentProps> = ({ plan, onBack }) => 
           </div>
         </section>
 
-        <section className="mb-20">
-          <h4 className="font-bold border-b border-black mb-4 py-1 text-sm uppercase">IV - LOGÍSTICA E COMUNICAÇÕES</h4>
+        <section className="mb-6">
+          <h4 className="font-bold border-b border-black mb-3 py-1 text-sm uppercase">IV - LOGÍSTICA E COMUNICAÇÕES</h4>
           <div className="grid grid-cols-2 gap-y-2 text-[12px]">
             <div><span className="font-bold">Canal Rádio:</span> {plan.radio}</div>
             <div><span className="font-bold">Equipamentos:</span> {plan.equipment}</div>
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <h4 className="font-bold border-b border-black mb-3 py-1 text-sm uppercase">V - EQUIPE EMPENHADA (EFETIVO NOMINAL)</h4>
+          <div className="border border-slate-200 p-3 rounded text-[11px] min-h-[100px] whitespace-pre-wrap leading-tight">
+            {plan.deployedTeam || "Não há listagem nominal cadastrada para este empenho."}
           </div>
         </section>
 
@@ -92,7 +99,7 @@ const OfficialDocument: React.FC<OfficialDocumentProps> = ({ plan, onBack }) => 
             <p className="text-[10px] uppercase">Responsável pela Ordem</p>
           </div>
           
-          <div className="mt-12 text-[9px] text-slate-500 italic text-left flex justify-between items-end border-t border-slate-100 pt-4">
+          <div className="mt-10 text-[9px] text-slate-500 italic text-left flex justify-between items-end border-t border-slate-100 pt-3">
             <div>
               Gerado eletronicamente em {today}.<br />
               Este documento é de uso interno da GCMBH. As informações contidas podem ser sigilosas.

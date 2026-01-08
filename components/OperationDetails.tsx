@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { OperationPlan, OperationStatus } from '../types';
-import { ChevronLeft, ShieldCheck, MapPin, Users, Car, Radio, Power } from 'lucide-react';
+import { ChevronLeft, ShieldCheck, MapPin, Users, Car, Radio, Power, UserCheck } from 'lucide-react';
 
 interface OperationDetailsProps {
   plan: OperationPlan;
@@ -19,7 +19,6 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
   onViewOfficial
 }) => {
   const isCompleted = plan.status === OperationStatus.COMPLETED;
-  const isInProgress = plan.status === OperationStatus.IN_PROGRESS;
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
@@ -65,6 +64,17 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
             <div className="p-6 bg-slate-900/60 rounded-lg border-l-4 border-blue-500">
               <p className="text-slate-200 leading-relaxed text-lg italic">
                 {plan.objective || "Sem objetivo definido."}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-8">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-6 flex items-center gap-2">
+              <UserCheck size={14} /> Equipe Empenhada
+            </h3>
+            <div className="p-6 bg-slate-900/60 rounded-lg border border-slate-700">
+              <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
+                {plan.deployedTeam || "Nenhum agente listadonominalmente."}
               </p>
             </div>
           </div>
