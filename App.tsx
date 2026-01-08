@@ -77,6 +77,10 @@ const App: React.FC = () => {
     setView('DASHBOARD');
   };
 
+  const handleUpdatePlan = (updatedPlan: OperationPlan) => {
+    setPlans(prev => prev.map(p => p.id === updatedPlan.id ? updatedPlan : p));
+  };
+
   const updatePlanStatus = (id: string, status: OperationStatus) => {
     setPlans(prev => prev.map(p => p.id === id ? { ...p, status } : p));
   };
@@ -129,6 +133,7 @@ const App: React.FC = () => {
           onStatusChange={updatePlanStatus}
           onVehicleToggle={toggleVehicleArrival}
           onViewOfficial={() => setView('OFFICIAL_DOC')}
+          onUpdatePlan={handleUpdatePlan}
         />
       )}
 
