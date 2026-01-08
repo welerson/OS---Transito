@@ -27,7 +27,8 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
       return 'bg-emerald-950/20 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]';
     }
     if (plan.status === OperationStatus.COMPLETED) {
-      return 'bg-red-950/10 border-red-500/30 grayscale opacity-80';
+      // Removido o 'grayscale' para permitir que o botão de excluir seja vermelho
+      return 'bg-slate-900/80 border-slate-700/50 opacity-90';
     }
     
     const eventTime = new Date(`${plan.date}T${plan.startTime}`);
@@ -127,21 +128,21 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                 </div>
               )}
 
-              {/* Botão de Excluir para Concluídos */}
+              {/* Botão de Excluir para Concluídos - Cor Vermelha Vibrante */}
               {plan.status === OperationStatus.COMPLETED && (
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete(plan.id);
                   }}
-                  className="absolute top-3 right-3 p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-xl z-20 transition-all active:scale-95"
                   title="Excluir Missão Concluída"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={18} />
                 </button>
               )}
 
-              <div>
+              <div className={plan.status === OperationStatus.COMPLETED ? 'opacity-60' : ''}>
                 <div className="flex justify-between items-start gap-2 mb-3">
                   <div className="flex-1">
                     <h3 className="text-lg font-bold leading-tight group-hover:text-blue-400 transition-colors uppercase line-clamp-2" title={plan.name}>
@@ -151,7 +152,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                   </div>
                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap
                     ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 
-                      plan.status === OperationStatus.COMPLETED ? 'bg-red-500/20 border-red-500 text-red-500' : 
+                      plan.status === OperationStatus.COMPLETED ? 'bg-slate-700/50 border-slate-600 text-slate-400' : 
                       isLate(plan) ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500 animate-pulse' :
                       'bg-slate-700/50 border-slate-600 text-slate-300'}
                   `}>
@@ -171,7 +172,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                 </div>
               </div>
 
-              <div className="flex gap-6 pt-4 border-t border-slate-700/30 mt-auto">
+              <div className={`flex gap-6 pt-4 border-t border-slate-700/30 mt-auto ${plan.status === OperationStatus.COMPLETED ? 'opacity-60' : ''}`}>
                 <div className="flex flex-col">
                   <span className="text-xl font-black text-white">{plan.agentsCount}</span>
                   <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
