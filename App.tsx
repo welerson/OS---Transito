@@ -119,7 +119,12 @@ const App: React.FC = () => {
   };
 
   const updatePlanStatus = (id: string, status: OperationStatus) => {
-    setPlans(prev => prev.map(p => p.id === id ? { ...p, status } : p));
+    setPlans(prev => prev.map(p => {
+      if (p.id === id) {
+        return { ...p, status };
+      }
+      return p;
+    }));
   };
 
   const toggleVehicleArrival = (planId: string, vehicleId: string) => {
@@ -135,51 +140,60 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      {view === 'DASHBOARD' && (
-        <Dashboard 
-          plans={plans} 
-          onNew={() => setView('CREATE')} 
-          onSelect={(id) => { setSelectedId(id); setView('DETAILS'); }}
-          onExport={syncWithFirebase} 
-          onShowSummary={() => setView('SUMMARY_REPORT')}
-          isSyncing={isSyncing}
-          onCloudLoad={loadFromFirebase}
-          onDelete={handleDeletePlan}
-        />
-      )}
+    <div className="min-h-screen flex flex-col bg-[#0f172a]">
+      <main className="flex-grow">
+        {view === 'DASHBOARD' && (
+          <Dashboard 
+            plans={plans} 
+            onNew={() => setView('CREATE')} 
+            onSelect={(id) => { setSelectedId(id); setView('DETAILS'); }}
+            onExport={syncWithFirebase} 
+            onShowSummary={() => setView('SUMMARY_REPORT')}
+            isSyncing={isSyncing}
+            onCloudLoad={loadFromFirebase}
+            onDelete={handleDeletePlan}
+          />
+        )}
 
-      {view === 'CREATE' && (
-        <OperationForm 
-          onSubmit={handleCreatePlan} 
-          onCancel={() => setView('DASHBOARD')} 
-        />
-      )}
+        {view === 'CREATE' && (
+          <OperationForm 
+            onSubmit={handleCreatePlan} 
+            onCancel={() => setView('DASHBOARD')} 
+          />
+        )}
 
-      {view === 'DETAILS' && selectedPlan && (
-        <OperationDetails 
-          plan={selectedPlan} 
-          onBack={() => setView('DASHBOARD')}
-          onStatusChange={updatePlanStatus}
-          onVehicleToggle={toggleVehicleArrival}
-          onViewOfficial={() => setView('OFFICIAL_DOC')}
-          onUpdatePlan={handleUpdatePlan}
-        />
-      )}
+        {view === 'DETAILS' && selectedPlan && (
+          <OperationDetails 
+            plan={selectedPlan} 
+            onBack={() => setView('DASHBOARD')}
+            onStatusChange={updatePlanStatus}
+            onVehicleToggle={toggleVehicleArrival}
+            onViewOfficial={() => setView('OFFICIAL_DOC')}
+            onUpdatePlan={handleUpdatePlan}
+          />
+        )}
 
-      {view === 'OFFICIAL_DOC' && selectedPlan && (
-        <OfficialDocument 
-          plan={selectedPlan} 
-          onBack={() => setView('DETAILS')} 
-        />
-      )}
+        {view === 'OFFICIAL_DOC' && selectedPlan && (
+          <OfficialDocument 
+            plan={selectedPlan} 
+            onBack={() => setView('DETAILS')} 
+          />
+        )}
 
-      {view === 'SUMMARY_REPORT' && (
-        <SummaryReport 
-          plans={plans} 
-          onBack={() => setView('DASHBOARD')} 
-        />
-      )}
+        {view === 'SUMMARY_REPORT' && (
+          <SummaryReport 
+            plans={plans} 
+            onBack={() => setView('DASHBOARD')} 
+          />
+        )}
+      </main>
+
+      {/* Rodapé Discreto */}
+      <footer className="py-8 text-center text-slate-600 text-[10px] uppercase tracking-[0.2em] font-medium no-print opacity-60">
+        <p>Sistema Desenvolvido por GCMIII Welerson Faria</p>
+        <p className="mt-1">Departamento de Trânsito - GCMBH</p>
+        <p className="mt-1">2026</p>
+      </footer>
     </div>
   );
 };
