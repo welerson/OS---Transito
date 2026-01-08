@@ -27,7 +27,8 @@ export interface OperationPlan {
   meetingPoint: string;
   agentsCount: number;
   vehiclesCount: number;
-  deployedTeam: string; // Nova informação
+  deployedTeam: string;
+  photo?: string; // Campo para imagem base64 otimizada
   status: OperationStatus;
   responsible: string;
   vehicles: Vehicle[];

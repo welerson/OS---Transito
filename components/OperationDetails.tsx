@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { OperationPlan, OperationStatus } from '../types';
-import { ChevronLeft, ShieldCheck, MapPin, Users, Car, Radio, Power, UserCheck } from 'lucide-react';
+import { ChevronLeft, ShieldCheck, MapPin, Users, Car, Radio, Power, UserCheck, ImageIcon } from 'lucide-react';
 
 interface OperationDetailsProps {
   plan: OperationPlan;
@@ -39,21 +39,28 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
         </button>
       </div>
 
-      <div className="space-y-4 mb-12">
-        <h1 className="text-4xl font-black tracking-tight text-white uppercase">{plan.name}</h1>
-        <div className="flex items-center gap-4">
-          <span className={`text-xs font-black uppercase px-3 py-1.5 rounded-md
-            ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-orange-500 text-slate-950' : 
-              plan.status === OperationStatus.COMPLETED ? 'bg-emerald-500 text-slate-950' : 
-              'bg-slate-700 text-slate-300'}
-          `}>
-            {plan.status}
-          </span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="lg:col-span-2 flex flex-col justify-center">
+            <h1 className="text-4xl font-black tracking-tight text-white uppercase mb-4 break-words">{plan.name}</h1>
+            <div className="flex flex-wrap items-center gap-4 mb-4">
+                <span className={`text-xs font-black uppercase px-3 py-1.5 rounded-md
+                    ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-orange-500 text-slate-950' : 
+                    plan.status === OperationStatus.COMPLETED ? 'bg-emerald-500 text-slate-950' : 
+                    'bg-slate-700 text-slate-300'}
+                `}>
+                    {plan.status}
+                </span>
+                <div className="flex items-center gap-2 text-slate-400">
+                    <MapPin size={18} className="text-blue-500" />
+                    <span className="text-lg">{plan.location}</span>
+                </div>
+            </div>
         </div>
-        <div className="flex items-center gap-2 text-slate-400">
-          <MapPin size={18} className="text-blue-500" />
-          <span className="text-lg">{plan.location}</span>
-        </div>
+        {plan.photo && (
+            <div className="rounded-2xl overflow-hidden border-2 border-slate-700 aspect-video lg:aspect-square bg-slate-900 shadow-2xl">
+                <img src={plan.photo} alt="Operação" className="w-full h-full object-cover" />
+            </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -73,8 +80,8 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
               <UserCheck size={14} /> Equipe Empenhada
             </h3>
             <div className="p-6 bg-slate-900/60 rounded-lg border border-slate-700">
-              <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
-                {plan.deployedTeam || "Nenhum agente listadonominalmente."}
+              <p className="text-slate-300 leading-relaxed whitespace-pre-wrap font-mono text-sm uppercase">
+                {plan.deployedTeam || "Nenhum agente listado nominalmente."}
               </p>
             </div>
           </div>
@@ -130,7 +137,7 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
           </div>
 
           <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4">Viaturas</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4">Check-in de Viaturas</h3>
             <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
               {plan.vehicles.map(vehicle => (
                 <div key={vehicle.id} className="bg-slate-900/80 border border-slate-800 p-4 rounded-lg flex justify-between items-center transition-all hover:border-slate-700">
@@ -143,7 +150,7 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
                       ${isCompleted ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
                   >
-                    {vehicle.arrived ? 'Check-in OK' : 'Arrivo'}
+                    {vehicle.arrived ? 'Check-in OK' : 'Aguardando'}
                   </button>
                 </div>
               ))}

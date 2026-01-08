@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { OperationPlan, OperationStatus } from '../types';
-import { Plus, Database, MapPin, Calendar, Users, Car, FileText } from 'lucide-react';
+import { Plus, Database, MapPin, Calendar, Users, Car, FileText, Image as ImageIcon } from 'lucide-react';
 
 interface DashboardProps {
   plans: OperationPlan[];
@@ -15,7 +15,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 60000); // Atualiza a cada minuto
+    const timer = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
@@ -24,16 +24,15 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
       return 'bg-emerald-950/20 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]';
     }
     if (plan.status === OperationStatus.COMPLETED) {
-      return 'bg-red-950/20 border-red-500/50 grayscale opacity-90';
+      return 'bg-red-950/10 border-red-500/30 grayscale opacity-80';
     }
     
-    // Lógica para o Amarelo Pulsante (Atrasado e Planejado)
     const eventTime = new Date(`${plan.date}T${plan.startTime}`);
     if (plan.status === OperationStatus.PLANNED && eventTime < now) {
       return 'bg-yellow-950/30 border-yellow-500/60 animate-pulse-slow shadow-[0_0_20px_rgba(234,179,8,0.2)]';
     }
 
-    return 'bg-slate-800/40 border-slate-700/50 hover:border-blue-500/50';
+    return 'bg-slate-800/40 border-slate-700/50 hover:border-blue-500/50 shadow-lg';
   };
 
   const isLate = (plan: OperationPlan) => {
@@ -50,6 +49,12 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
         }
         .animate-pulse-slow {
           animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
 
@@ -95,56 +100,72 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
             <div 
               key={plan.id}
               onClick={() => onSelect(plan.id)}
-              className={`group cursor-pointer rounded-xl p-5 border transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden ${getStatusStyles(plan)}`}
+              className={`group cursor-pointer rounded-xl p-5 border transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden flex flex-col justify-between h-[280px] ${getStatusStyles(plan)}`}
             >
-              {/* Card Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold leading-tight group-hover:text-blue-400 transition-colors uppercase truncate pr-2">{plan.name}</h3>
-                  <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">{plan.inspectorate} / {plan.macroRegion}</p>
+              {/* Background Photo Sutil se existir */}
+              {plan.photo && (
+                <div className="absolute top-0 right-0 w-24 h-24 opacity-20 pointer-events-none">
+                  <img src={plan.photo} alt="" className="w-full h-full object-cover rounded-bl-3xl" />
                 </div>
-                <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-md border whitespace-nowrap
-                  ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 
-                    plan.status === OperationStatus.COMPLETED ? 'bg-red-500/20 border-red-500 text-red-500' : 
-                    isLate(plan) ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500 animate-pulse' :
-                    'bg-slate-700/50 border-slate-600 text-slate-300'}
-                `}>
-                  {isLate(plan) ? 'ATRASADO' : plan.status}
-                </span>
-              </div>
+              )}
 
-              {/* Info Details */}
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-2 text-slate-300 text-sm">
-                  <MapPin size={16} className={`${isLate(plan) ? 'text-yellow-500' : 'text-blue-500'}`} />
-                  <span className="truncate">{plan.location}</span>
+              {/* Card Header */}
+              <div>
+                <div className="flex justify-between items-start gap-2 mb-3">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold leading-tight group-hover:text-blue-400 transition-colors uppercase line-clamp-2" title={plan.name}>
+                      {plan.name}
+                    </h3>
+                    <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">{plan.inspectorate} / {plan.macroRegion}</p>
+                  </div>
+                  <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap
+                    ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 
+                      plan.status === OperationStatus.COMPLETED ? 'bg-red-500/20 border-red-500 text-red-500' : 
+                      isLate(plan) ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500 animate-pulse' :
+                      'bg-slate-700/50 border-slate-600 text-slate-300'}
+                  `}>
+                    {isLate(plan) ? 'ATRASADO' : plan.status}
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-300 text-sm">
-                  <Calendar size={16} className={`${isLate(plan) ? 'text-yellow-500' : 'text-blue-500'}`} />
-                  <span className={isLate(plan) ? 'text-yellow-500 font-bold' : ''}>{plan.date} - {plan.startTime}</span>
+
+                {/* Info Details */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-slate-300 text-xs">
+                    <MapPin size={14} className={`${isLate(plan) ? 'text-yellow-500' : 'text-blue-500'} shrink-0`} />
+                    <span className="truncate">{plan.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-300 text-xs">
+                    <Calendar size={14} className={`${isLate(plan) ? 'text-yellow-500' : 'text-blue-500'} shrink-0`} />
+                    <span className={isLate(plan) ? 'text-yellow-500 font-bold' : ''}>{plan.date} - {plan.startTime}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Stats Footer */}
-              <div className="flex gap-8 pt-4 border-t border-slate-700/30">
+              <div className="flex gap-6 pt-4 border-t border-slate-700/30 mt-auto">
                 <div className="flex flex-col">
-                  <span className="text-2xl font-black text-white">{plan.agentsCount}</span>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                  <span className="text-xl font-black text-white">{plan.agentsCount}</span>
+                  <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
                     <Users size={10} /> AGENTES
                   </span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-2xl font-black text-white">{plan.vehiclesCount}</span>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                  <span className="text-xl font-black text-white">{plan.vehiclesCount}</span>
+                  <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
                     <Car size={10} /> VIATURAS
                   </span>
                 </div>
+                {plan.photo && (
+                  <div className="ml-auto flex items-end">
+                    <ImageIcon size={14} className="text-slate-500" />
+                  </div>
+                )}
               </div>
 
               {/* Special Status Indicator */}
               {isLate(plan) && (
-                <div className="absolute top-2 right-2 flex gap-1">
-                   <div className="w-2 h-2 bg-yellow-500 rounded-full animate-ping"></div>
+                <div className="absolute top-1 right-1">
+                   <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping"></div>
                 </div>
               )}
             </div>
