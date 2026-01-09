@@ -1,7 +1,7 @@
 
 import React, { useRef, useState } from 'react';
 import { OperationPlan, OperationStatus } from '../types';
-import { ChevronLeft, ShieldCheck, MapPin, Users, Car, Radio, Power, UserCheck, Camera, X, Play } from 'lucide-react';
+import { ChevronLeft, ShieldCheck, MapPin, Users, Car, Radio, Power, UserCheck, Camera, X, Play, Shield } from 'lucide-react';
 
 interface OperationDetailsProps {
   plan: OperationPlan;
@@ -107,6 +107,12 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
             <MapPin size={16} className="text-blue-500" />
             {plan.location}
           </div>
+          {plan.responsible && (
+            <div className="flex items-center gap-1.5 text-slate-400 text-sm ml-2">
+              <Shield size={16} className="text-yellow-500" />
+              <span className="font-bold text-slate-200">Cmdte:</span> {plan.responsible}
+            </div>
+          )}
         </div>
       </div>
 

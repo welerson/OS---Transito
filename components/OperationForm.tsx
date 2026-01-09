@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { OperationPlan } from '../types';
-import { Shield, ChevronLeft, MapPin, Calendar, Clock, Users, Car, UserCheck } from 'lucide-react';
+import { Shield, ChevronLeft, MapPin, Calendar, Clock, Users, Car, UserCheck, Building2 } from 'lucide-react';
 
 interface OperationFormProps {
   onSubmit: (plan: Omit<OperationPlan, 'id' | 'status' | 'vehicles'>) => void;
@@ -35,7 +35,6 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Convertendo strings numéricas para Number antes do envio
     onSubmit({
       ...formData,
       agentsCount: Number(formData.agentsCount),
@@ -61,7 +60,7 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Ex: Operação Blitz"
+              placeholder="Ex: Operação Blitz Integrada"
               className="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 outline-none focus:border-blue-500 transition-colors"
             />
           </div>
@@ -75,6 +74,7 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
+                placeholder="Logradouro, Bairro ou Referência"
                 className="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 pl-10 outline-none focus:border-blue-500 transition-colors"
               />
             </div>
@@ -104,6 +104,50 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
               />
             </div>
           </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-400 flex items-center gap-1">
+              <Shield size={14} className="text-blue-500" /> Responsável pela Ordem (Comandante)
+            </label>
+            <input 
+              required
+              name="responsible"
+              value={formData.responsible}
+              onChange={handleChange}
+              placeholder="Posto/Graduação e Nome de Guerra"
+              className="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 outline-none focus:border-blue-500 transition-colors"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-400 flex items-center gap-1">
+                <Building2 size={14} /> Inspetoria / Unidade
+              </label>
+              <input 
+                required
+                name="inspectorate"
+                value={formData.inspectorate}
+                onChange={handleChange}
+                placeholder="Ex: GETRA, GIOP..."
+                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 outline-none focus:border-blue-500 transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-400">Macro Região</label>
+              <select 
+                name="macroRegion"
+                value={formData.macroRegion}
+                onChange={handleChange}
+                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 outline-none focus:border-blue-500 transition-colors"
+              >
+                <option value="Macro 1">Macro 1</option>
+                <option value="Macro 2">Macro 2</option>
+                <option value="Macro 3">Macro 3</option>
+                <option value="Macro 4">Macro 4</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -115,7 +159,7 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
               value={formData.objective}
               onChange={handleChange}
               rows={3}
-              placeholder="Descreva a finalidade principal do emprego..."
+              placeholder="Descreva a finalidade principal do emprego operacional..."
               className="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 outline-none focus:border-blue-500 transition-colors resize-none"
             />
           </div>
@@ -127,11 +171,11 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
             <div className="flex gap-4">
               <div className="flex-1 bg-slate-900 p-4 rounded-lg border border-slate-800 text-center">
                 <label className="text-[10px] font-bold text-slate-500 uppercase block mb-2">Agentes</label>
-                <input type="number" name="agentsCount" value={formData.agentsCount} onChange={handleChange} className="bg-transparent text-3xl font-black text-center w-full" />
+                <input type="number" name="agentsCount" value={formData.agentsCount} onChange={handleChange} className="bg-transparent text-3xl font-black text-center w-full outline-none" />
               </div>
               <div className="flex-1 bg-slate-900 p-4 rounded-lg border border-slate-800 text-center">
                 <label className="text-[10px] font-bold text-slate-500 uppercase block mb-2">Viaturas</label>
-                <input type="number" name="vehiclesCount" value={formData.vehiclesCount} onChange={handleChange} className="bg-transparent text-3xl font-black text-center w-full" />
+                <input type="number" name="vehiclesCount" value={formData.vehiclesCount} onChange={handleChange} className="bg-transparent text-3xl font-black text-center w-full outline-none" />
               </div>
             </div>
             <div className="space-y-2">
@@ -143,16 +187,16 @@ const OperationForm: React.FC<OperationFormProps> = ({ onSubmit, onCancel }) => 
                 value={formData.deployedTeam} 
                 onChange={handleChange} 
                 rows={3}
-                placeholder="Ex: GCM Silva, GCM Santos..."
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 text-xs resize-none"
+                placeholder="Ex: GCM Silva, GCM Santos, GCM Oliveira..."
+                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 text-xs resize-none outline-none focus:border-blue-500"
               />
             </div>
           </div>
         </div>
 
         <div className="flex justify-end gap-4 pt-10 border-t border-slate-800">
-          <button type="button" onClick={onCancel} className="px-8 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-semibold">Cancelar</button>
-          <button type="submit" className="px-10 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-lg transition-all">Salvar Plano Operacional</button>
+          <button type="button" onClick={onCancel} className="px-8 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-semibold transition-colors">Cancelar</button>
+          <button type="submit" className="px-10 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-lg transition-all active:scale-95">Salvar Plano Operacional</button>
         </div>
       </form>
     </div>
