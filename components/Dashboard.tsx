@@ -138,17 +138,19 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                 onClick={() => onSelect(plan.id)}
                 className={`group cursor-pointer rounded-xl p-5 border transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden flex flex-col justify-between h-[280px] ${getStatusStyles(plan)} text-white`}
               >
-                {/* Botão de Excluir - Disponível para TODOS os registros */}
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(plan.id);
-                  }}
-                  className="absolute top-3 right-3 p-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg shadow-xl z-20 transition-all active:scale-95 border border-red-500/50"
-                  title="Excluir este registro de todos os dispositivos"
-                >
-                  <Trash2 size={16} />
-                </button>
+                {/* Botão de Excluir - Disponível apenas para missões iniciadas ou concluídas (Não aparece em Planejado ou Atrasado) */}
+                {plan.status !== OperationStatus.PLANNED && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(plan.id);
+                    }}
+                    className="absolute top-3 right-3 p-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg shadow-xl z-20 transition-all active:scale-95 border border-red-500/50"
+                    title="Excluir este registro de todos os dispositivos"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
 
                 {plan.photo && (
                   <div className="absolute top-0 right-0 w-24 h-24 opacity-20 pointer-events-none">
@@ -158,7 +160,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
 
                 <div>
                   <div className="flex justify-between items-start gap-2 mb-3">
-                    <div className="flex-1 pr-8"> {/* Padding para não bater no botão de excluir */}
+                    <div className={`flex-1 ${plan.status !== OperationStatus.PLANNED ? 'pr-8' : ''}`}>
                       <h3 className="text-lg font-bold leading-tight group-hover:text-blue-400 transition-colors uppercase line-clamp-2" title={plan.name}>
                         {plan.name}
                       </h3>
