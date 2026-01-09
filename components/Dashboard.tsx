@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { OperationPlan, OperationStatus } from '../types';
-import { Plus, MapPin, Calendar, Users, Car, FileText, Image as ImageIcon, CloudUpload, CloudDownload, Trash2, Search, Filter } from 'lucide-react';
+import { Plus, MapPin, Calendar, Users, Car, FileText, Image as ImageIcon, CloudUpload, RefreshCw, Trash2, Search, Filter } from 'lucide-react';
 
 interface DashboardProps {
   plans: OperationPlan[];
@@ -14,7 +14,7 @@ interface DashboardProps {
   onDelete: (id: string) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport, onShowSummary, isSyncing, onCloudLoad, onDelete }) => {
+const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport, onShowSummary, isSyncing, onDelete }) => {
   const [now, setNow] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -23,12 +23,11 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
     return () => clearInterval(timer);
   }, []);
 
-  // Filtro de busca para garantir que o usuário encontre qualquer evento
   const filteredPlans = useMemo(() => {
     return plans.filter(plan => 
       plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       plan.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      plan.inspectorate.toLowerCase().includes(searchTerm.toLowerCase())
+      (plan.inspectorate && plan.inspectorate.toLowerCase().includes(searchTerm.toLowerCase()))
     );
   }, [plans, searchTerm]);
 
@@ -74,7 +73,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">GCMBH - P.E.O.</h1>
-          <p className="text-slate-400 mt-1 uppercase text-sm tracking-wide font-medium">Departamento de Transito</p>
+          <p className="text-slate-400 mt-1 uppercase text-sm tracking-wide font-medium">Departamento de Trânsito</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto">
           <button 
@@ -87,22 +86,13 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
           
           <button 
             disabled={isSyncing}
-            onClick={onCloudLoad}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 text-slate-400 hover:text-white text-xs transition-colors bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg"
-          >
-            <CloudDownload size={14} />
-            Nuvem
-          </button>
-
-          <button 
-            disabled={isSyncing}
             onClick={onExport}
             className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all border
-              ${isSyncing ? 'bg-slate-800 text-slate-500 border-slate-700' : 'bg-orange-600/10 hover:bg-orange-600/20 text-orange-500 border-orange-500/50 shadow-lg shadow-orange-900/10'}
+              ${isSyncing ? 'bg-slate-800 text-slate-500 border-slate-700' : 'bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 border-emerald-500/50 shadow-lg shadow-emerald-900/10'}
             `}
           >
-            <CloudUpload size={16} className={isSyncing ? 'animate-bounce' : ''} />
-            Sincronizar
+            {isSyncing ? <RefreshCw size={16} className="animate-spin" /> : <CloudUpload size={16} />}
+            {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
           </button>
 
           <button 
@@ -115,7 +105,6 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
         </div>
       </header>
 
-      {/* Área de Filtro e Busca */}
       <div className="flex flex-col md:flex-row items-center gap-4 mb-8 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
         <div className="relative w-full md:max-w-md">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -129,7 +118,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-400 font-medium ml-auto">
           <Filter size={14} />
-          Exibindo <span className="text-blue-400 font-bold">{filteredPlans.length}</span> de <span className="text-white font-bold">{plans.length}</span> registros
+          Exibindo <span className="text-blue-400 font-bold">{filteredPlans.length}</span> de <span className="text-white font-bold">{plans.length}</span> registros online
         </div>
       </div>
 
@@ -155,19 +144,16 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                   </div>
                 )}
 
-                {/* Botão de Excluir */}
-                {plan.status === OperationStatus.COMPLETED && (
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(plan.id);
-                    }}
-                    className="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-xl z-20 transition-all active:scale-95"
-                    title="Excluir Missão Concluída"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                )}
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(plan.id);
+                  }}
+                  className="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-xl z-20 transition-all active:scale-95"
+                  title="Excluir de todos os dispositivos"
+                >
+                  <Trash2 size={18} />
+                </button>
 
                 <div>
                   <div className="flex justify-between items-start gap-2 mb-3">
@@ -229,7 +215,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
           </div>
         ) : (
           <div className="text-center py-20 bg-slate-900/30 border-2 border-dashed border-slate-800 rounded-2xl">
-            <p className="text-slate-500 font-medium">Nenhum evento encontrado para esta busca.</p>
+            <p className="text-slate-500 font-medium">Nenhum evento encontrado na nuvem.</p>
             <button 
               onClick={() => setSearchTerm('')}
               className="mt-4 text-blue-500 text-sm font-bold hover:underline"

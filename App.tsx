@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, get } from "firebase/database";
+import { getDatabase, ref, set, onValue } from "firebase/database";
 import { OperationPlan, ViewState, OperationStatus } from './types';
 import Dashboard from './components/Dashboard';
 import OperationForm from './components/OperationForm';
@@ -24,29 +24,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const INITIAL_DATA: OperationPlan[] = [
-  {
-    id: '1',
-    name: 'Exemplo de Operação',
-    inspectorate: 'Inspetoria Exemplo',
-    macroRegion: 'Macro 1',
-    location: 'Belo Horizonte, MG',
-    date: '2024-12-31',
-    startTime: '10:00',
-    objective: 'Demonstração do sistema.',
-    scenario: 'Normal.',
-    uniform: 'Operacional',
-    radio: 'Rede 1',
-    equipment: 'HT',
-    meetingPoint: 'Base',
-    agentsCount: 5,
-    vehiclesCount: 2,
-    deployedTeam: 'Agentes Exemplo',
-    status: OperationStatus.PLANNED,
-    responsible: 'Inspetor Exemplo',
-    vehicles: [{ id: 'VT-1', name: 'VT-1', arrived: false }, { id: 'VT-2', name: 'VT-2', arrived: false }]
-  }
-];
+const INITIAL_DATA: OperationPlan[] = [];
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('DASHBOARD');
@@ -57,41 +35,34 @@ const App: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
+  // EFEITO 1: Ouvinte em Tempo Real (O segredo para ver tudo em todos os lugares)
   useEffect(() => {
-    localStorage.setItem('gcmbh_plans', JSON.stringify(plans));
-  }, [plans]);
+    const plansRef = ref(db, 'plans');
+    // Este código "escuta" o banco de dados. Se mudar no PC, o celular atualiza sozinho.
+    const unsubscribe = onValue(plansRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const cloudData = snapshot.val();
+        // Converte o objeto do Firebase em array se necessário e atualiza o estado
+        const dataArray = Array.isArray(cloudData) ? cloudData : Object.values(cloudData);
+        setPlans(dataArray as OperationPlan[]);
+        localStorage.setItem('gcmbh_plans', JSON.stringify(dataArray));
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const selectedPlan = plans.find(p => p.id === selectedId);
 
-  // Função para enviar ao Banco de Dados (Firebase)
-  const syncWithFirebase = async () => {
-    setIsSyncing(true);
+  // Função auxiliar para salvar na nuvem e local simultaneamente
+  const savePlans = async (newPlans: OperationPlan[]) => {
+    setPlans(newPlans);
+    localStorage.setItem('gcmbh_plans', JSON.stringify(newPlans));
     try {
-      await set(ref(db, 'plans'), plans);
-      alert('Dados sincronizados com sucesso na Nuvem Firebase!');
+      setIsSyncing(true);
+      await set(ref(db, 'plans'), newPlans);
     } catch (error) {
-      console.error("Erro ao sincronizar:", error);
-      alert('Falha ao enviar para o banco de dados. Verifique as regras do Firebase.');
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  // Função para carregar do Banco de Dados
-  const loadFromFirebase = async () => {
-    setIsSyncing(true);
-    try {
-      const snapshot = await get(ref(db, 'plans'));
-      if (snapshot.exists()) {
-        const cloudData = snapshot.val();
-        setPlans(cloudData);
-        alert('Dados baixados da Nuvem com sucesso!');
-      } else {
-        alert('Nenhum dado encontrado na nuvem.');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Erro ao carregar dados da nuvem.');
+      console.error("Erro ao sincronizar com nuvem:", error);
     } finally {
       setIsSyncing(false);
     }
@@ -102,33 +73,39 @@ const App: React.FC = () => {
       ...newPlan,
       id: Date.now().toString(),
       status: OperationStatus.PLANNED,
-      vehicles: Array.from({ length: newPlan.vehiclesCount }, (_, i) => ({ id: `VT-${i + 1}`, name: `VT-${i + 1}`, arrived: false }))
+      vehicles: Array.from({ length: newPlan.vehiclesCount }, (_, i) => ({ 
+        id: `VT-${i + 1}`, 
+        name: `VT-${i + 1}`, 
+        arrived: false 
+      }))
     };
-    setPlans(prev => [plan, ...prev]);
+    const updated = [plan, ...plans];
+    savePlans(updated);
     setView('DASHBOARD');
   };
 
   const handleDeletePlan = (id: string) => {
-    if (window.confirm('Deseja realmente excluir esta missão concluída? Esta ação não pode ser desfeita localmente.')) {
-      setPlans(prev => prev.filter(p => p.id !== id));
+    if (window.confirm('Deseja realmente excluir este registro de todos os dispositivos?')) {
+      const updated = plans.filter(p => p.id !== id);
+      savePlans(updated);
     }
   };
 
   const handleUpdatePlan = (updatedPlan: OperationPlan) => {
-    setPlans(prev => prev.map(p => p.id === updatedPlan.id ? updatedPlan : p));
+    const updated = plans.map(p => p.id === updatedPlan.id ? updatedPlan : p);
+    savePlans(updated);
   };
 
   const updatePlanStatus = (id: string, status: OperationStatus) => {
-    setPlans(prev => prev.map(p => {
-      if (p.id === id) {
-        return { ...p, status };
-      }
+    const updated = plans.map(p => {
+      if (p.id === id) return { ...p, status };
       return p;
-    }));
+    });
+    savePlans(updated);
   };
 
   const toggleVehicleArrival = (planId: string, vehicleId: string) => {
-    setPlans(prev => prev.map(p => {
+    const updated = plans.map(p => {
       if (p.id === planId) {
         return {
           ...p,
@@ -136,8 +113,12 @@ const App: React.FC = () => {
         };
       }
       return p;
-    }));
+    });
+    savePlans(updated);
   };
+
+  // Função de sincronização manual (ainda útil como "push" forçado se estiver offline)
+  const manualSync = () => savePlans(plans);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a]">
@@ -147,10 +128,10 @@ const App: React.FC = () => {
             plans={plans} 
             onNew={() => setView('CREATE')} 
             onSelect={(id) => { setSelectedId(id); setView('DETAILS'); }}
-            onExport={syncWithFirebase} 
+            onExport={manualSync} 
             onShowSummary={() => setView('SUMMARY_REPORT')}
             isSyncing={isSyncing}
-            onCloudLoad={loadFromFirebase}
+            onCloudLoad={() => {}} // Não mais necessário carregar manual, pois é automático
             onDelete={handleDeletePlan}
           />
         )}
@@ -188,11 +169,13 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Rodapé Discreto */}
       <footer className="py-8 text-center text-slate-600 text-[10px] uppercase tracking-[0.2em] font-medium no-print opacity-60">
-        <p>Sistema Desenvolvido por GCMIII Welerson Faria</p>
+        <p>Sistema de Gestão Operacional Integrado</p>
         <p className="mt-1">Departamento de Trânsito - GCMBH</p>
-        <p className="mt-1">2026</p>
+        <div className="flex justify-center items-center gap-2 mt-2">
+          <div className={`w-1.5 h-1.5 rounded-full ${isSyncing ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`}></div>
+          <span>{isSyncing ? 'Sincronizando...' : 'Nuvem Conectada'}</span>
+        </div>
       </footer>
     </div>
   );
