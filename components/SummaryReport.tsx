@@ -14,7 +14,6 @@ const SummaryReport: React.FC<SummaryReportProps> = ({ plans, onBack }) => {
     planned: plans.filter(p => p.status === OperationStatus.PLANNED).length,
     inProgress: plans.filter(p => p.status === OperationStatus.IN_PROGRESS).length,
     completed: plans.filter(p => p.status === OperationStatus.COMPLETED).length,
-    // Garantindo conversão para número para evitar concatenação de strings
     totalAgents: plans.reduce((acc, p) => acc + Number(p.agentsCount || 0), 0),
     totalVehicles: plans.reduce((acc, p) => acc + Number(p.vehiclesCount || 0), 0)
   };
@@ -36,7 +35,7 @@ const SummaryReport: React.FC<SummaryReportProps> = ({ plans, onBack }) => {
           className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-lg"
         >
           <Printer size={18} />
-          Imprimir Relatório Geral
+          Imprimir Relatório
         </button>
       </div>
 
@@ -47,7 +46,6 @@ const SummaryReport: React.FC<SummaryReportProps> = ({ plans, onBack }) => {
           <p className="text-sm mt-2 font-mono">Gerado em: {new Date().toLocaleString('pt-BR')}</p>
         </header>
 
-        {/* Resumo Estatístico */}
         <section className="mb-12">
           <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-4 border-b pb-1">Resumo Estatístico</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -55,32 +53,21 @@ const SummaryReport: React.FC<SummaryReportProps> = ({ plans, onBack }) => {
               <span className="block text-[10px] font-bold text-slate-500 uppercase">Total de Eventos</span>
               <span className="text-3xl font-black">{stats.total}</span>
             </div>
-            <div className="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500">
-              <span className="block text-[10px] font-bold text-emerald-600 uppercase">Em Andamento</span>
-              <span className="text-3xl font-black text-emerald-700">{stats.inProgress}</span>
+            <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+              <span className="block text-[10px] font-bold text-yellow-600 uppercase">Em Andamento</span>
+              <span className="text-3xl font-black text-yellow-700">{stats.inProgress}</span>
             </div>
             <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
               <span className="block text-[10px] font-bold text-blue-600 uppercase">Planejados</span>
               <span className="text-3xl font-black text-blue-700">{stats.planned}</span>
             </div>
-            <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
-              <span className="block text-[10px] font-bold text-red-600 uppercase">Concluídos</span>
-              <span className="text-3xl font-black text-red-700">{stats.completed}</span>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div className="bg-slate-900 text-white p-4 rounded-lg flex justify-between items-center">
-              <span className="text-xs font-bold uppercase">Recursos Humanos (Total)</span>
-              <span className="text-2xl font-black">{stats.totalAgents} Agentes</span>
-            </div>
-            <div className="bg-slate-900 text-white p-4 rounded-lg flex justify-between items-center">
-              <span className="text-xs font-bold uppercase">Mobilidade (Total)</span>
-              <span className="text-2xl font-black">{stats.totalVehicles} Viaturas</span>
+            <div className="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500">
+              <span className="block text-[10px] font-bold text-emerald-600 uppercase">Concluídos</span>
+              <span className="text-3xl font-black text-emerald-700">{stats.completed}</span>
             </div>
           </div>
         </section>
 
-        {/* Tabela de Eventos */}
         <section>
           <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-4 border-b pb-1">Listagem de Empenhos</h3>
           <div className="overflow-x-auto">
@@ -105,8 +92,8 @@ const SummaryReport: React.FC<SummaryReportProps> = ({ plans, onBack }) => {
                     <td className="p-2 font-mono">{plan.date} {plan.startTime}</td>
                     <td className="p-2">
                       <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border
-                        ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-emerald-100 border-emerald-500 text-emerald-700' : 
-                          plan.status === OperationStatus.COMPLETED ? 'bg-red-100 border-red-500 text-red-700' : 
+                        ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-yellow-100 border-yellow-500 text-yellow-700' : 
+                          plan.status === OperationStatus.COMPLETED ? 'bg-emerald-100 border-emerald-500 text-emerald-700' : 
                           'bg-slate-100 border-slate-500 text-slate-700'}
                       `}>
                         {plan.status}

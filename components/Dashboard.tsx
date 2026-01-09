@@ -31,35 +31,32 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
     );
   }, [plans, searchTerm]);
 
-  const getStatusStyles = (plan: OperationPlan) => {
-    if (plan.status === OperationStatus.IN_PROGRESS) {
-      return 'bg-emerald-950/20 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]';
-    }
-    if (plan.status === OperationStatus.COMPLETED) {
-      return 'bg-slate-900/60 border-slate-700/50 shadow-sm';
-    }
-    
-    const eventTime = new Date(`${plan.date}T${plan.startTime}`);
-    if (plan.status === OperationStatus.PLANNED && eventTime < now) {
-      return 'bg-yellow-950/30 border-yellow-500/60 animate-pulse-slow shadow-[0_0_20px_rgba(234,179,8,0.2)]';
-    }
-
-    return 'bg-slate-800/40 border-slate-700/50 hover:border-blue-500/50 shadow-lg';
-  };
-
   const isLate = (plan: OperationPlan) => {
     const eventTime = new Date(`${plan.date}T${plan.startTime}`);
     return plan.status === OperationStatus.PLANNED && eventTime < now;
+  };
+
+  const getStatusStyles = (plan: OperationPlan) => {
+    if (isLate(plan)) {
+      return 'bg-red-950/20 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.1)]';
+    }
+    if (plan.status === OperationStatus.IN_PROGRESS) {
+      return 'bg-yellow-950/20 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.1)]';
+    }
+    if (plan.status === OperationStatus.COMPLETED) {
+      return 'bg-emerald-950/10 border-emerald-500/30 shadow-sm';
+    }
+    return 'bg-slate-800/40 border-slate-700/50 hover:border-blue-500/50 shadow-lg';
   };
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-screen">
       <style>{`
         @keyframes pulse-slow {
-          0%, 100% { transform: scale(1); border-color: rgba(234, 179, 8, 0.6); }
-          50% { transform: scale(1.01); border-color: rgba(234, 179, 8, 1); }
+          0%, 100% { transform: scale(1); border-color: rgba(239, 68, 68, 0.6); }
+          50% { transform: scale(1.01); border-color: rgba(239, 68, 68, 1); }
         }
-        .animate-pulse-slow {
+        .animate-pulse-red {
           animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
         .line-clamp-2 {
@@ -92,7 +89,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
             `}
           >
             {isSyncing ? <RefreshCw size={16} className="animate-spin" /> : <CloudUpload size={16} />}
-            {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+            {isSyncing ? 'Sincronizar' : 'Sincronizar'}
           </button>
 
           <button 
@@ -126,7 +123,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
         <h2 className="text-xl font-semibold mb-6 flex items-center gap-2 text-white">
           Quadro Geral de Missões
           {plans.some(isLate) && (
-            <span className="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded font-black uppercase animate-pulse">Atrasados</span>
+            <span className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded font-black uppercase animate-pulse">Atrasados</span>
           )}
         </h2>
         
@@ -136,9 +133,8 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
               <div 
                 key={plan.id}
                 onClick={() => onSelect(plan.id)}
-                className={`group cursor-pointer rounded-xl p-5 border transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden flex flex-col justify-between h-[280px] ${getStatusStyles(plan)} text-white`}
+                className={`group cursor-pointer rounded-xl p-5 border transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden flex flex-col justify-between h-[280px] ${getStatusStyles(plan)} ${isLate(plan) ? 'animate-pulse-red' : ''} text-white`}
               >
-                {/* Botão de Excluir - Disponível apenas para missões iniciadas ou concluídas (Não aparece em Planejado ou Atrasado) */}
                 {plan.status !== OperationStatus.PLANNED && (
                   <button 
                     onClick={(e) => {
@@ -146,7 +142,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                       onDelete(plan.id);
                     }}
                     className="absolute top-3 right-3 p-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg shadow-xl z-20 transition-all active:scale-95 border border-red-500/50"
-                    title="Excluir este registro de todos os dispositivos"
+                    title="Excluir este registro"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -170,9 +166,9 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
 
                   <div className="flex mb-4">
                     <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap
-                      ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 
-                        plan.status === OperationStatus.COMPLETED ? 'bg-slate-700/50 border-slate-600 text-slate-400' : 
-                        isLate(plan) ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500 animate-pulse' :
+                      ${isLate(plan) ? 'bg-red-500/20 border-red-500 text-red-500 animate-pulse' : 
+                        plan.status === OperationStatus.IN_PROGRESS ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500' : 
+                        plan.status === OperationStatus.COMPLETED ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 
                         'bg-slate-700/50 border-slate-600 text-slate-300'}
                     `}>
                       {isLate(plan) ? 'ATRASADO' : plan.status}
@@ -181,12 +177,12 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-slate-300 text-xs">
-                      <MapPin size={14} className={`${isLate(plan) ? 'text-yellow-500' : 'text-blue-500'} shrink-0`} />
+                      <MapPin size={14} className={`${isLate(plan) ? 'text-red-500' : plan.status === OperationStatus.IN_PROGRESS ? 'text-yellow-500' : 'text-blue-500'} shrink-0`} />
                       <span className="truncate">{plan.location}</span>
                     </div>
                     <div className="flex items-center gap-2 text-slate-300 text-xs">
-                      <Calendar size={14} className={`${isLate(plan) ? 'text-yellow-500' : 'text-blue-500'} shrink-0`} />
-                      <span className={isLate(plan) ? 'text-yellow-500 font-bold' : ''}>{plan.date} - {plan.startTime}</span>
+                      <Calendar size={14} className={`${isLate(plan) ? 'text-red-500' : plan.status === OperationStatus.IN_PROGRESS ? 'text-yellow-500' : 'text-blue-500'} shrink-0`} />
+                      <span className={isLate(plan) ? 'text-red-500 font-bold' : ''}>{plan.date} - {plan.startTime}</span>
                     </div>
                   </div>
                 </div>
@@ -210,24 +206,12 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
                     </div>
                   )}
                 </div>
-
-                {isLate(plan) && (
-                  <div className="absolute top-1 right-1">
-                     <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-ping"></div>
-                  </div>
-                )}
               </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-20 bg-slate-900/30 border-2 border-dashed border-slate-800 rounded-2xl">
             <p className="text-slate-500 font-medium">Nenhum evento encontrado na nuvem.</p>
-            <button 
-              onClick={() => setSearchTerm('')}
-              className="mt-4 text-blue-500 text-sm font-bold hover:underline"
-            >
-              Limpar Filtros
-            </button>
           </div>
         )}
       </section>

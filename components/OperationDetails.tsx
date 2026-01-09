@@ -1,7 +1,7 @@
 
 import React, { useRef, useState } from 'react';
 import { OperationPlan, OperationStatus } from '../types';
-import { ChevronLeft, ShieldCheck, MapPin, Users, Car, Radio, Power, UserCheck, Camera, X, ImageIcon } from 'lucide-react';
+import { ChevronLeft, ShieldCheck, MapPin, Users, Car, Radio, Power, UserCheck, Camera, X, Play } from 'lucide-react';
 
 interface OperationDetailsProps {
   plan: OperationPlan;
@@ -21,6 +21,7 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
   onUpdatePlan
 }) => {
   const isCompleted = plan.status === OperationStatus.COMPLETED;
+  const isInProgress = plan.status === OperationStatus.IN_PROGRESS;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCompressing, setIsCompressing] = useState(false);
 
@@ -96,8 +97,8 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
         <h1 className="text-4xl font-black tracking-tight text-white uppercase mb-2">{plan.name}</h1>
         <div className="flex flex-wrap items-center gap-4">
           <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded border
-            ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 
-              plan.status === OperationStatus.COMPLETED ? 'bg-red-500/20 border-red-500 text-red-500' : 
+            ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500' : 
+              plan.status === OperationStatus.COMPLETED ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 
               'bg-slate-700/50 border-slate-600 text-slate-300'}
           `}>
             {plan.status}
@@ -110,19 +111,16 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column - 8 Cols */}
         <div className="lg:col-span-8 space-y-8">
-          {/* Mission Card */}
           <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-8">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-4">Missão</h3>
             <div className="p-6 bg-slate-900/40 rounded-lg border-l-4 border-blue-500">
               <p className="text-slate-200 leading-relaxed italic">
-                {plan.objective || "Teste"}
+                {plan.objective || "Aguardando definição de diretrizes."}
               </p>
             </div>
           </div>
 
-          {/* Team Card */}
           <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-8">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-4 flex items-center gap-2">
               <UserCheck size={14} /> Equipe Empenhada
@@ -134,7 +132,6 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
             </div>
           </div>
 
-          {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6 flex items-center gap-4">
               <div className="p-3 bg-slate-900/60 rounded-lg text-blue-500">
@@ -160,33 +157,43 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
               </div>
               <div className="overflow-hidden">
                 <p className="text-[10px] font-bold text-slate-500 uppercase">Rádio</p>
-                <p className="text-xl font-black truncate">{plan.radio || "Rede O..."}</p>
+                <p className="text-xl font-black truncate">{plan.radio || "Rede Ops"}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column - 4 Cols */}
         <div className="lg:col-span-4 space-y-6">
-          {/* Control Card */}
           <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4">Controle</h3>
-            {!isCompleted ? (
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4">Controle de Status</h3>
+            
+            {plan.status === OperationStatus.PLANNED && (
+              <button 
+                onClick={() => onStatusChange(plan.id, OperationStatus.IN_PROGRESS)}
+                className="w-full py-4 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-yellow-900/20"
+              >
+                <Play size={18} />
+                Iniciar Missão
+              </button>
+            )}
+
+            {plan.status === OperationStatus.IN_PROGRESS && (
               <button 
                 onClick={() => onStatusChange(plan.id, OperationStatus.COMPLETED)}
-                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg"
+                className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-900/20"
               >
                 <Power size={18} />
                 Encerrar Missão
               </button>
-            ) : (
-              <div className="text-center py-3 text-emerald-500 font-bold border border-emerald-500/20 rounded-lg bg-emerald-500/5 uppercase text-xs">
+            )}
+
+            {plan.status === OperationStatus.COMPLETED && (
+              <div className="text-center py-4 text-emerald-500 font-bold border border-emerald-500/20 rounded-lg bg-emerald-500/5 uppercase text-xs">
                 Missão Finalizada
               </div>
             )}
           </div>
 
-          {/* Photo Card - NEW */}
           <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Evidência Fotográfica</h3>
@@ -232,10 +239,9 @@ const OperationDetails: React.FC<OperationDetailsProps> = ({
             />
           </div>
 
-          {/* Vehicles Card */}
           <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-6">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 uppercase">Check-in de Viaturas</h3>
-            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
               {plan.vehicles.map(vehicle => (
                 <div key={vehicle.id} className="bg-slate-900/60 border border-slate-800 p-3 rounded-lg flex justify-between items-center">
                   <span className="font-bold text-slate-200 text-sm">{vehicle.name}</span>
