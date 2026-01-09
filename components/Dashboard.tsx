@@ -72,7 +72,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
 
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">GCMBH - P.E.O.</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white">GCMBH - P.E.O.</h1>
           <p className="text-slate-400 mt-1 uppercase text-sm tracking-wide font-medium">Departamento de Trânsito</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto">
@@ -113,7 +113,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
             placeholder="Buscar por nome, local ou inspetoria..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-500 transition-colors"
+            className="w-full bg-slate-950 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm outline-none focus:border-blue-500 transition-colors text-white"
           />
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-400 font-medium ml-auto">
@@ -123,7 +123,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
       </div>
 
       <section>
-        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2 text-white">
           Quadro Geral de Missões
           {plans.some(isLate) && (
             <span className="text-[10px] bg-yellow-500 text-black px-2 py-0.5 rounded font-black uppercase animate-pulse">Atrasados</span>
@@ -136,33 +136,37 @@ const Dashboard: React.FC<DashboardProps> = ({ plans, onNew, onSelect, onExport,
               <div 
                 key={plan.id}
                 onClick={() => onSelect(plan.id)}
-                className={`group cursor-pointer rounded-xl p-5 border transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden flex flex-col justify-between h-[280px] ${getStatusStyles(plan)}`}
+                className={`group cursor-pointer rounded-xl p-5 border transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden flex flex-col justify-between h-[280px] ${getStatusStyles(plan)} text-white`}
               >
+                {/* Botão de Excluir - Disponível para TODOS os registros */}
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(plan.id);
+                  }}
+                  className="absolute top-3 right-3 p-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg shadow-xl z-20 transition-all active:scale-95 border border-red-500/50"
+                  title="Excluir este registro de todos os dispositivos"
+                >
+                  <Trash2 size={16} />
+                </button>
+
                 {plan.photo && (
                   <div className="absolute top-0 right-0 w-24 h-24 opacity-20 pointer-events-none">
                     <img src={plan.photo} alt="" className="w-full h-full object-cover rounded-bl-3xl" />
                   </div>
                 )}
 
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(plan.id);
-                  }}
-                  className="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-xl z-20 transition-all active:scale-95"
-                  title="Excluir de todos os dispositivos"
-                >
-                  <Trash2 size={18} />
-                </button>
-
                 <div>
                   <div className="flex justify-between items-start gap-2 mb-3">
-                    <div className="flex-1">
+                    <div className="flex-1 pr-8"> {/* Padding para não bater no botão de excluir */}
                       <h3 className="text-lg font-bold leading-tight group-hover:text-blue-400 transition-colors uppercase line-clamp-2" title={plan.name}>
                         {plan.name}
                       </h3>
                       <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">{plan.inspectorate} / {plan.macroRegion}</p>
                     </div>
+                  </div>
+
+                  <div className="flex mb-4">
                     <span className={`text-[9px] font-black uppercase px-2 py-1 rounded border whitespace-nowrap
                       ${plan.status === OperationStatus.IN_PROGRESS ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 
                         plan.status === OperationStatus.COMPLETED ? 'bg-slate-700/50 border-slate-600 text-slate-400' : 
